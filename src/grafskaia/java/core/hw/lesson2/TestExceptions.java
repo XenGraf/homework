@@ -1,6 +1,7 @@
 package grafskaia.java.core.hw.lesson2;
 
 public class TestExceptions {
+
     public static void main(String[] args) {
         String[][] arr = {{"1","2","3","4"},{"1","2","3","4"},{"1","2","3","4"},{"1","2","3","4"}};
         try {
