@@ -6,4 +6,5 @@ public class MyArraySizeException extends Exception {
         System.out.println("Wrong array dimensions!!! The size of " + a + " is wrong");
     }
 
+
 }
