@@ -5,16 +5,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lesson7.project.GlobalState;
+import lesson7.project.entity.WeatherObject;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 public class AccuWeatherProvider implements IWeatherProvider {
 
@@ -156,8 +157,17 @@ public class AccuWeatherProvider implements IWeatherProvider {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         WeatherResponse weatherResponse = objectMapper.readValue(jsonResponse,new TypeReference<WeatherResponse>() {});
-        for (DailyForecasts i: weatherResponse.getDailyForecasts()) {
-            System.out.printf("В городе %s на дату %s днем ожидается %s, вечером - %s. Максимальная температура составит %s \u00B0С, минимальная - %s \u00B0С.\n", GlobalState.getInstance().getSelectedCity(),changeDateFormat(i.getDate()), i.getDay().getDescription(), i.getNight().getDescription(), i.getTempInfo().getMax().getTemperatureValue(), i.getTempInfo().getMin().getTemperatureValue());
+        List<WeatherObject> weatherObject = createWeatherObject(weatherResponse);
+        for (WeatherObject i: weatherObject) {
+            System.out.printf("В городе %s на дату %s днем ожидается %s, вечером - %s. Максимальная температура составит %s \u00B0С, минимальная - %s \u00B0С.\n", i.getCityName(),i.getDate(), i.getDayDescription(), i.getNightDescription(), i.getMaxTemperature(), i.getMinTemperature());
         }
+    }
+
+    private List<WeatherObject> createWeatherObject(WeatherResponse weatherResponse) throws ParseException {
+        List<WeatherObject> weatherObject = new ArrayList<WeatherObject>();
+        for (DailyForecasts i: weatherResponse.getDailyForecasts()) {
+            weatherObject.add(new WeatherObject(GlobalState.getInstance().getSelectedCity(), changeDateFormat(i.getDate()),i.getDay().getDescription(),i.getNight().getDescription(),i.getTempInfo().getMax().getTemperatureValue(),i.getTempInfo().getMin().getTemperatureValue()));
+        }
+        return weatherObject;
     }
 }
